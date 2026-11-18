@@ -53,6 +53,27 @@ async def 開團(interaction: discord.Interaction, 副本: str, 日期: str, 集
     embed.set_footer(text=f"團ID: {team_id} | 請團長記下，之後指定出戰要用")
     await interaction.response.send_message(embed=embed)
 
+
+# ---------- /每日團：一鍵開今天的每日團，不用每天打日期 ----------
+@bot.tree.command(name="每日團", description="一鍵開今天的每日團，不用填日期")
+@app_commands.describe(副本="預設: 煉金", 集合時間="預設: 20:00", 開打時間="預設: 20:30", 語音頻道="例如: 語音-一團")
+async def 每日團(interaction: discord.Interaction, 副本: str = "煉金", 集合時間: str = "20:00", 開打時間: str = "20:30", 語音頻道: str = "未指定"):
+    today = datetime.now().strftime("%m/%d")
+    d = load()
+    gid = str(interaction.guild_id)
+    team_id = f"{gid}_{副本}_{today}"
+    d["teams"][team_id] = {"副本":副本,"日期":today,"集合":集合時間,"開打":開打時間,"語音":語音頻道,"團長":interaction.user.display_name,"頻道":interaction.channel_id,"成員":{},"出戰":{}}
+    save(d)
+    embed = discord.Embed(title=f"⚔️ 新王者之劍 - {副本} 每日團開團！", color=0xE8B84B)
+    embed.add_field(name="📅 日期", value=f"{today} (今天)", inline=True)
+    embed.add_field(name="🕗 集合", value=集合時間, inline=True)
+    embed.add_field(name="⚔️ 開打", value=開打時間, inline=True)
+    embed.add_field(name="🎙️ 語音", value=語音頻道, inline=False)
+    embed.add_field(name="👑 團長", value=interaction.user.mention, inline=True)
+    embed.add_field(name="📝 報名方式", value="打 `/報名` 填你的 3 隻角色\n打 `/名單` 看目前報名", inline=False)
+    embed.set_footer(text=f"每日團就是這樣一鍵開，不用每天打日期")
+    await interaction.response.send_message(embed=embed)
+
 # ---------- /報名 ----------
 @bot.tree.command(name="報名", description="報名參加，填你 3 隻角色 (MCC 一人帶3隻)")
 @app_commands.describe(副本="要報哪個副本", 日期="例如: 11/22", 角色1="例如: 雷提夫-坦克", 角色2="例如: 蒂卡妮兒-輸出", 角色3="例如: 巴哈-輸出", 狀態="可參加 / 晚到 / 候補", 備註="例如: 只能打到22:00")
