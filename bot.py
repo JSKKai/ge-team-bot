@@ -3,23 +3,6 @@
 # Python 3.10+ / discord.py 2.3+
 # 指令: /開團 /報名 /名單 /出戰 /提醒 /取消報名 /刪除團
 import discord, json, os, asyncio
-
-# --- Render 免費 Web Service 需要一個會回應的 Port ---
-import threading
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import os as _os
-class _H(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200); self.end_headers(); self.wfile.write(b"Bot is alive")
-    def log_message(self, *a): pass
-def _run_web():
-    try:
-        HTTPServer(("0.0.0.0", int(_os.getenv("PORT", "10000"))), _H).serve_forever()
-    except Exception as e:
-        print("web server:", e)
-threading.Thread(target=_run_web, daemon=True).start()
-# --- 假 Web 伺服器結束 ---
-
 from discord import app_commands
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta
@@ -153,5 +136,7 @@ async def check_reminder():
 if __name__ == "__main__":
     if not TOKEN:
         print("❌ 請設定環境變數 DISCORD_TOKEN")
+        print("DEBUG_ENV_KEYS:", sorted([k for k in os.environ.keys() if "TOKEN" in k or "DISCORD" in k or "RAILWAY" in k]))
+        print("DEBUG_HAS_DISCORD_TOKEN_KEY:", "DISCORD_TOKEN" in os.environ)
     else:
         bot.run(TOKEN)
